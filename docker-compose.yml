@@ -1,0 +1,49 @@
+version: "1.0"
+services:
+    www:
+        image: node:20
+        working_dir: /usr/src/app
+        command: npm run start:dev
+        build: .
+        restart: on-failure
+        ports: 
+            - 4010:4010
+        volumes:
+            - ./www:/usr/src/app
+        links:
+            - db
+        networks:
+            - default
+    db:
+        image: mysql:8.0
+        ports: 
+            - 3310:3310
+        command: --default-authentication-plugin=mysql_native_password --port=3310
+        environment:
+            MYSQL_DATABASE: findclub_new
+            MYSQL_PASSWORD: 1
+            MYSQL_ROOT_PASSWORD: 1
+        volumes:
+            - ./database/dump:/docker-entrypoint-initdb.d
+            - persistent:/var/lib/mysql
+        restart: on-failure
+        networks:
+            - default
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        links: 
+            - db:db
+        ports:
+            - 8010:80
+        environment:
+            PMA_HOST: db
+            PMA_PORT: 3310
+            MYSQL_USER: root
+            MYSQL_PASSWORD: 1
+            MYSQL_ROOT_PASSWORD: 1
+            UPLOAD_LIMIT: 3640M
+            MAX_EXECUTION_TIME: 3640
+            MEMORY_LIMIT: 3640M
+        restart: on-failure
+volumes:
+    persistent:

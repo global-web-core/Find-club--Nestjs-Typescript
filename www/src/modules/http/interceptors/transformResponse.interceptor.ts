@@ -1,0 +1,17 @@
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { CODE_RESPONSE, STATUS_RESPONSE } from 'src/constants/response.constants';
+
+@Injectable()
+export class TransformResponseInterceptor<T> implements NestInterceptor<T, any> {
+  intercept(context: ExecutionContext, next: CallHandler<T>): Observable<any> {
+    return next.handle().pipe(
+      map(data => ({
+        success: STATUS_RESPONSE.SUCCESS,
+				code: CODE_RESPONSE.OK,
+        data,
+      })),
+    );
+  }
+}
